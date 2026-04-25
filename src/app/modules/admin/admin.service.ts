@@ -4,8 +4,6 @@ import { adminSearchableFields } from "./admin.constant";
 import type { TAdminFilterRequest, TAdminOptions } from "../../../types/admin";
 import calculatePagination from "../../../helper/pagination";
 
-
-
 const getAllAdmins = async (
   params: TAdminFilterRequest,
   options: TAdminOptions,
@@ -48,7 +46,18 @@ const getAllAdmins = async (
     },
   });
 
-  return { result, count: result.length };
+  const count = await prisma.admin.count({
+    where: whereCondition,
+  });
+
+  return {
+    meta: {
+      page,
+      limit,
+      total: count,
+    },
+    data: result,
+  };
 };
 
 export const adminService = {
