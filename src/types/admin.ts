@@ -6,8 +6,8 @@ type TAdminFilterRequest = {
 };
 
 type TAdminOptions = {
-  limit?: number;
-  page?: number;
+  limit?: string | number;
+  page?: string | number;
   sortBy?: string;
   sortOrder?: "asc" | "desc";
 };

@@ -5,4 +5,13 @@ const router = Router();
 
 router.get("/admins", adminController.getAllAdmins);
 
+//get single data
+router.get("/admins/:id", adminController.getSingleAdmin);
+
+//update data
+router.patch("/admins/:id", adminController.updateAdmin);
+
+//delete data
+router.delete("/admins/:id", adminController.deletedAdmin);
+
 export const adminRouter: ExpressRouter = router;
