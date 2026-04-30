@@ -1,4 +1,4 @@
-import type { Admin, Prisma } from "@prisma/client";
+import { UserStatus, type Admin, type Prisma } from "@prisma/client";
 import { prisma } from "../../../shared/prisma";
 import { adminSearchableFields } from "./admin.constant";
 import type { TAdminFilterRequest, TAdminOptions } from "../../../types/admin";
@@ -12,8 +12,6 @@ const getAllAdmins = async (
 
   const { searchTerm, ...filterData } = params;
   const { limit, page, sortBy, sortOrder, skip } = calculatePagination(options);
-
-  console.log(filterData);
 
   if (params.searchTerm) {
     addCondirion.push({
@@ -35,6 +33,10 @@ const getAllAdmins = async (
       })),
     });
   }
+
+  addCondirion.push({
+    isDeleted: !true,
+  });
 
   const whereCondition = { AND: addCondirion };
   const result = await prisma.admin.findMany({
@@ -101,9 +103,36 @@ const deletedAdmin = async (id: string) => {
   return result;
 };
 
+const adminSoftDeleted = async (id: string) => {
+  const result = await prisma.$transaction(async (softDeleted) => {
+    const adminSoftDeletedData = await softDeleted.admin.update({
+      where: {
+        id,
+      },
+      data: {
+        isDeleted: true,
+      },
+    });
+    const userSoftDeletedData = await softDeleted.user.update({
+      where: {
+        email: adminSoftDeletedData.email,
+      },
+      data: {
+        status: UserStatus.DELETED,
+      },
+    });
+    return {
+      adminSoftDeletedData,
+      userSoftDeletedData,
+    };
+  });
+  return result;
+};
+
 export const adminService = {
   getAllAdmins,
   getSingleAdmin,
   updateAdmin,
   deletedAdmin,
+  adminSoftDeleted,
 };

@@ -12,6 +12,9 @@ router.get("/admins/:id", adminController.getSingleAdmin);
 router.patch("/admins/:id", adminController.updateAdmin);
 
 //delete data
-router.delete("/admins/:id", adminController.deletedAdmin);
+router.delete("/admins/:id", adminController.adminDeleted);
+
+//soft deleted
+router.delete("/admins/soft/:id", adminController.adminSoftDleted);
 
 export const adminRouter: ExpressRouter = router;
