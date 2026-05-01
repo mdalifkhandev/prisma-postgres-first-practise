@@ -68,6 +68,14 @@ const getSingleAdmin = async (id: string) => {
       id,
     },
   });
+
+  if (!result) {
+    throw new Error("Admin Not Found");
+  }
+  if (result.isDeleted) {
+    throw new Error("Admin is Deleted");
+  }
+
   return result;
 };
 

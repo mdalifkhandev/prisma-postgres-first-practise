@@ -6,7 +6,6 @@
     "moduleResolution":"bundler",
     "target": "es2023",
     "esModuleInterop": true,
-    "ignoreDeprecations":"6.0",
     "types": [],
     "sourceMap": true,
     "declaration": true,

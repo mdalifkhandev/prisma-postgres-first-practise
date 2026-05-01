@@ -2,6 +2,29 @@ import type { Request, Response } from "express";
 import { adminService } from "./admin.service";
 import pick from "../../../shared/pick";
 import { adminFilterableFields } from "./admin.constant";
+import httpStatus from "http-status";
+
+const sendResponse = <T>(
+  res: Response,
+  resData: {
+    statusCode: number;
+    success: boolean;
+    message: string;
+    meta?: {
+      page: number;
+      limit: number;
+      total: number;
+    };
+    data: T | null | undefined;
+  },
+) => {
+  res.status(resData.statusCode).json({
+    success: resData.success,
+    message: resData.message,
+    meta: resData.meta,
+    data: resData.data,
+  });
+};
 
 const getAllAdmins = async (req: Request, res: Response) => {
   const params = pick(req.query, adminFilterableFields);
@@ -9,10 +32,10 @@ const getAllAdmins = async (req: Request, res: Response) => {
 
   try {
     const result = await adminService.getAllAdmins(params, options);
-
-    res.status(200).json({
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
       success: true,
-      message: "Admins retrieved successfully",
+      message: "Retreive all admins successfully",
       meta: result.meta,
       data: result.data,
     });
