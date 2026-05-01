@@ -3,18 +3,17 @@ import { adminController } from "./admin.controller";
 
 const router = Router();
 
-router.get("/admins", adminController.getAllAdmins);
-
+router.get("/", adminController.getAllAdmins);
 //get single data
-router.get("/admins/:id", adminController.getSingleAdmin);
+router.get("/:id", adminController.getSingleAdmin);
 
 //update data
-router.patch("/admins/:id", adminController.updateAdmin);
+router.patch("/:id", adminController.updateAdmin);
 
 //delete data
-router.delete("/admins/:id", adminController.adminDeleted);
+router.delete("/:id", adminController.adminDeleted);
 
 //soft deleted
-router.delete("/admins/soft/:id", adminController.adminSoftDleted);
+router.delete("/soft/:id", adminController.adminSoftDleted);
 
 export const adminRouter: ExpressRouter = router;

@@ -6,6 +6,7 @@ import express, {
 import { userRouter } from "./app/modules/user/user.route";
 import { adminRouter } from "./app/modules/admin/admin.route";
 import morgan from "morgan";
+import { mainRouter } from "./app/router";
 
 const app: Application = express();
 
@@ -17,7 +18,6 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Hello, World!");
 });
 
-app.use("/api/v1", userRouter);
-app.use("/api/v1", adminRouter);
+app.use("/api/v1", mainRouter);
 
 export default app;

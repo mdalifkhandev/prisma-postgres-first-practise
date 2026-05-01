@@ -3,8 +3,8 @@ import { userController } from "./user.controller";
 
 const router = Router();
 
-router.get("/users", userController.createAdmin);
+router.get("/", userController.createAdmin);
 
-router.post("/users", userController.createAdmin);
+router.post("/", userController.createAdmin);
 
 export const userRouter: ExpressRouter = router;
