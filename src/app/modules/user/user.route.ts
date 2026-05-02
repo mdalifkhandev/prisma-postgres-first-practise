@@ -7,6 +7,10 @@ const router = Router();
 
 router.get("/", userController.createAdmin);
 
-router.post("/",validateRequest(adminValidation.createAdmin), userController.createAdmin);
+router.post(
+  "/",
+  validateRequest(adminValidation.createAdmin),
+  userController.createAdmin,
+);
 
 export const userRouter: ExpressRouter = router;

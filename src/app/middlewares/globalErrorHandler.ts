@@ -6,7 +6,7 @@ import { ZodError } from "zod";
 
 const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
   let statusCode: number = httpStatus.INTERNAL_SERVER_ERROR;
-  let message = "Something went wrong ";
+  let message = "Something went wrong";
 
   if (err instanceof ZodError) {
     const formattedErrors = err.issues.map((issue) => ({
@@ -15,23 +15,35 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
       code: issue.code,
       input: issue.input,
     }));
-    return res.status(400).json({
+    return res.status(httpStatus.BAD_REQUEST).json({
       success: false,
+      statusCode: httpStatus.BAD_REQUEST,
       message: "Validation failed",
       errorDetails: formattedErrors,
     });
   }
 
   if (err instanceof AppError) {
-    ((statusCode = err.statusCode), (message = err.message));
+    statusCode = err.statusCode;
+    message = err.message;
   } else if (err instanceof Prisma.PrismaClientKnownRequestError) {
-    ((statusCode = httpStatus.BAD_REQUEST),
-      (message = "Invalid admin id fromate"));
+    if (err.code === "P2023") {
+      statusCode = httpStatus.BAD_REQUEST;
+      message = "Invalid id format";
+    } else if (err.code === "P2002") {
+      statusCode = httpStatus.CONFLICT;
+      message = "Duplicate field value";
+    } else {
+      statusCode = httpStatus.BAD_REQUEST;
+      message = "Database request error";
+    }
   } else if (err instanceof Error) {
     message = err.message;
   }
+
   res.status(statusCode).json({
     success: false,
+    statusCode,
     message,
     errorDetails: err,
   });

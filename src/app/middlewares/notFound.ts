@@ -1,15 +1,14 @@
-import type { NextFunction, Request, Response } from "express";
+import type { Request, Response } from "express";
 import httpStatus from "http-status";
 
-const notFound = (req: Request, res: Response, next: NextFunction) => {
-    console.log(req);
-    
+const notFound = (req: Request, res: Response) => {
   res.status(httpStatus.NOT_FOUND).json({
     success: false,
-    message: "Not found",
+    statusCode: httpStatus.NOT_FOUND,
+    message: "Route not found",
     path: req.originalUrl,
+    data: null,
   });
-  next();
 };
 
 export default notFound;
