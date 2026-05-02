@@ -13,7 +13,7 @@ const userLoginSchema = z.object({
 });
 
 const refreshTokenSchema = z.object({
-  body: z.object({
+  cookies: z.object({
     refreshToken: z
       .string({ error: "Refresh token must be a string" })
       .trim()

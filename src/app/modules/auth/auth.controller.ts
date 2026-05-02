@@ -7,16 +7,25 @@ import type { Request, Response } from "express";
 const userLogin = catchAsync(async (req: Request, res: Response) => {
   const { email, password } = req.body;
   const result = await authService.userLogin({ email, password });
+  const { refreshToken, ...rest } = result;
+
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/api/v1/auth/refresh-token",
+  });
+
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: "Login successfully",
-    data: result,
+    data: rest,
   });
 });
 
 const refreshToken = catchAsync(async (req: Request, res: Response) => {
-  const { refreshToken } = req.body;
+  const refreshToken = req.cookies?.refreshToken;
   const result = await authService.refreshToken({ refreshToken });
 
   sendResponse(res, {

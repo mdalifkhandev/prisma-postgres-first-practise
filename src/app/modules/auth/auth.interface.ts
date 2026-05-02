@@ -4,5 +4,5 @@ export type TLoginData = {
 };
 
 export type TRefreshTokenData = {
-  refreshToken: string;
+  refreshToken?: string;
 };

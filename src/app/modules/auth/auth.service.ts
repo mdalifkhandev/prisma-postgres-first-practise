@@ -52,6 +52,10 @@ const userLogin = async (data: TLoginData) => {
 };
 
 const refreshToken = async (data: TRefreshTokenData) => {
+  if (!data.refreshToken) {
+    throw new AppError(httpStatus.UNAUTHORIZED, "Refresh token is required");
+  }
+
   const decoded = verifyRefreshToken(data.refreshToken);
   const user = await prisma.user.findUnique({
     where: { email: decoded.email },
