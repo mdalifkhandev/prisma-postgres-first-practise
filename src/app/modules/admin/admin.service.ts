@@ -10,13 +10,13 @@ const getAllAdmins = async (
   params: TAdminFilterRequest,
   options: TAdminOptions,
 ) => {
-  const addCondirion: Prisma.AdminWhereInput[] = [];
+  const addCondition: Prisma.AdminWhereInput[] = [];
 
   const { searchTerm, ...filterData } = params;
   const { limit, page, sortBy, sortOrder, skip } = calculatePagination(options);
 
   if (params.searchTerm) {
-    addCondirion.push({
+    addCondition.push({
       OR: adminSearchableFields.map((field) => ({
         [field]: {
           contains: params.searchTerm,
@@ -27,7 +27,7 @@ const getAllAdmins = async (
   }
 
   if (Object.keys(filterData).length > 0) {
-    addCondirion.push({
+    addCondition.push({
       AND: Object.keys(filterData).map((field) => ({
         [field]: {
           equals: filterData[field as keyof typeof filterData],
@@ -36,11 +36,11 @@ const getAllAdmins = async (
     });
   }
 
-  addCondirion.push({
-    isDeleted: !true,
+  addCondition.push({
+    isDeleted: false,
   });
 
-  const whereCondition = { AND: addCondirion };
+  const whereCondition = { AND: addCondition };
   const result = await prisma.admin.findMany({
     where: whereCondition,
     skip: skip,
@@ -72,13 +72,10 @@ const getSingleAdmin = async (id: string) => {
   });
 
   if (!result) {
-    throw new AppError(httpStatus.BAD_REQUEST, "Admin Not Found");
+    throw new AppError(httpStatus.NOT_FOUND, "Admin not found");
   }
   if (result.isDeleted) {
-    throw new AppError(httpStatus.BAD_REQUEST, "Admin is Deleted");
-  }
-  if (result.isDeleted) {
-    throw new AppError(httpStatus.FORBIDDEN, "Admin not found");
+    throw new AppError(httpStatus.NOT_FOUND, "Admin not found");
   }
 
   return result;

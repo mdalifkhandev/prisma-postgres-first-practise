@@ -39,11 +39,13 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
     message = err.message;
   }
 
+  const isProduction = process.env.NODE_ENV === "production";
+
   res.status(statusCode).json({
     success: false,
     statusCode,
     message,
-    errorDetails: err,
+    errorDetails: isProduction ? undefined : err,
   });
 };
 

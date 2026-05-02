@@ -21,8 +21,8 @@ app.use(cookieParser());
 app.use(morgan("dev"));
 
 const limiter = rateLimit({
-  windowMs: 1 * 60 + 1000,
-  max: 1,
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   message: "Too many requests, please try again later.",
   standardHeaders: true,
   legacyHeaders: false,
@@ -34,7 +34,7 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Hello, World!");
 });
 
-app.use("/api/v1", limiter, mainRouter);
+app.use("/api/v1", mainRouter);
 
 app.use(notFound);
 app.use(globalErrorHandler);
