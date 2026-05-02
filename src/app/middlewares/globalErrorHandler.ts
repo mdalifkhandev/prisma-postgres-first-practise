@@ -21,9 +21,7 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
       message: "Validation failed",
       errorDetails: formattedErrors,
     });
-  }
-
-  if (err instanceof AppError) {
+  } else if (err instanceof AppError) {
     statusCode = err.statusCode;
     message = err.message;
   } else if (err instanceof Prisma.PrismaClientKnownRequestError) {

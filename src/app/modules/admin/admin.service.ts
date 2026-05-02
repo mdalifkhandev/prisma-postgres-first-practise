@@ -4,8 +4,7 @@ import { adminSearchableFields } from "./admin.constant";
 import type { TAdminFilterRequest, TAdminOptions } from "../../../types/admin";
 import calculatePagination from "../../../helper/pagination";
 import AppError from "../../../shared/AppError";
-import HttpStatus  from "http-status";
-
+import httpStatus from "http-status";
 
 const getAllAdmins = async (
   params: TAdminFilterRequest,
@@ -73,10 +72,13 @@ const getSingleAdmin = async (id: string) => {
   });
 
   if (!result) {
-    throw new AppError(HttpStatus.BAD_REQUEST,"Admin Not Found");
+    throw new AppError(httpStatus.BAD_REQUEST, "Admin Not Found");
   }
   if (result.isDeleted) {
-    throw new AppError(HttpStatus.BAD_REQUEST,"Admin is Deleted");
+    throw new AppError(httpStatus.BAD_REQUEST, "Admin is Deleted");
+  }
+  if (result.isDeleted) {
+    throw new AppError(httpStatus.FORBIDDEN, "Admin not found");
   }
 
   return result;
