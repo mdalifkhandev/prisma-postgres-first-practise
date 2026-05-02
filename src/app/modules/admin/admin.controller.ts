@@ -4,29 +4,21 @@ import pick from "../../../shared/pick";
 import { adminFilterableFields } from "./admin.constant";
 import httpStatus from "http-status";
 import sendResponse from "../../../shared/sendResponse";
+import catchAsync from "../../middlewares/catchAsync";
 
-const getAllAdmins = async (req: Request, res: Response) => {
+const getAllAdmins = catchAsync(async (req: Request, res: Response) => {
   const params = pick(req.query, adminFilterableFields);
   const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
 
-  try {
-    const result = await adminService.getAllAdmins(params, options);
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: "Retreive all admins successfully",
-      meta: result.meta,
-      data: result.data,
-    });
-  } catch (err: any) {
-    sendResponse(res, {
-      statusCode: httpStatus.INTERNAL_SERVER_ERROR,
-      success: false,
-      message: "An error occurred while retrieving admins",
-      data: err,
-    });
-  }
-};
+  const result = await adminService.getAllAdmins(params, options);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Retreive all admins successfully",
+    meta: result.meta,
+    data: result.data,
+  });
+});
 
 const getSingleAdmin = async (req: Request<{ id: string }>, res: Response) => {
   const { id } = req.params;
