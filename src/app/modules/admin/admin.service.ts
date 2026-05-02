@@ -3,6 +3,9 @@ import { prisma } from "../../../shared/prisma";
 import { adminSearchableFields } from "./admin.constant";
 import type { TAdminFilterRequest, TAdminOptions } from "../../../types/admin";
 import calculatePagination from "../../../helper/pagination";
+import AppError from "../../../shared/AppError";
+import HttpStatus  from "http-status";
+
 
 const getAllAdmins = async (
   params: TAdminFilterRequest,
@@ -70,10 +73,10 @@ const getSingleAdmin = async (id: string) => {
   });
 
   if (!result) {
-    throw new Error("Admin Not Found");
+    throw new AppError(HttpStatus.BAD_REQUEST,"Admin Not Found");
   }
   if (result.isDeleted) {
-    throw new Error("Admin is Deleted");
+    throw new AppError(HttpStatus.BAD_REQUEST,"Admin is Deleted");
   }
 
   return result;

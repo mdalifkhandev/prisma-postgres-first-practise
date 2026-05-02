@@ -3,10 +3,10 @@ import express, {
   type Request,
   type Response,
 } from "express";
-import { userRouter } from "./app/modules/user/user.route";
-import { adminRouter } from "./app/modules/admin/admin.route";
 import morgan from "morgan";
 import { mainRouter } from "./app/router";
+import globalErrorHandler from "./app/middlewares/globalErrorHandler";
+import notFound from "./app/middlewares/notFound";
 
 const app: Application = express();
 
@@ -19,5 +19,8 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/api/v1", mainRouter);
+
+app.use(notFound);
+app.use(globalErrorHandler);
 
 export default app;

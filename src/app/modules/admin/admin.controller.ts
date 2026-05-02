@@ -20,8 +20,9 @@ const getAllAdmins = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const getSingleAdmin = async (req: Request<{ id: string }>, res: Response) => {
-  const { id } = req.params;
+const getSingleAdmin = catchAsync(async (req: Request, res: Response) => {
+  const rawId = req.params.id;
+  const id = Array.isArray(rawId) ? rawId[0] : rawId;
 
   if (!id) {
     sendResponse(res, {
@@ -33,26 +34,18 @@ const getSingleAdmin = async (req: Request<{ id: string }>, res: Response) => {
     return;
   }
 
-  try {
-    const result = await adminService.getSingleAdmin(id);
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: "Admin retrieved successfully",
-      data: result,
-    });
-  } catch (err: any) {
-    sendResponse(res, {
-      statusCode: httpStatus.INTERNAL_SERVER_ERROR,
-      success: false,
-      message: err?.message || "An error occurred while retrieving the admin",
-      data: err,
-    });
-  }
-};
+  const result = await adminService.getSingleAdmin(id);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Admin retrieved successfully",
+    data: result,
+  });
+});
 
-const updateAdmin = async (req: Request<{ id: string }>, res: Response) => {
-  const { id } = req.params;
+const updateAdmin = catchAsync(async (req: Request, res: Response) => {
+  const rawId = req.params.id;
+  const id = Array.isArray(rawId) ? rawId[0] : rawId;
   const data = req.body;
 
   if (!id) {
@@ -65,26 +58,18 @@ const updateAdmin = async (req: Request<{ id: string }>, res: Response) => {
     return;
   }
 
-  try {
-    const result = await adminService.updateAdmin(id, data);
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: "Admin updated successfully",
-      data: result,
-    });
-  } catch (err: any) {
-    sendResponse(res, {
-      statusCode: httpStatus.INTERNAL_SERVER_ERROR,
-      success: false,
-      message: err?.message || "An error occurred while updating the admin",
-      data: err,
-    });
-  }
-};
+  const result = await adminService.updateAdmin(id, data);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Admin updated successfully",
+    data: result,
+  });
+});
 
-const adminDeleted = async (req: Request<{ id: string }>, res: Response) => {
-  const id = req.params.id;
+const adminDeleted = catchAsync(async (req: Request, res: Response) => {
+  const rawId = req.params.id;
+  const id = Array.isArray(rawId) ? rawId[0] : rawId;
 
   if (!id) {
     sendResponse(res, {
@@ -95,44 +80,37 @@ const adminDeleted = async (req: Request<{ id: string }>, res: Response) => {
     });
     return;
   }
-  try {
-    const result = await adminService.deletedAdmin(id);
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: "Admin deleted successfully",
-      data: result,
-    });
-  } catch (err: any) {
-    sendResponse(res, {
-      statusCode: httpStatus.INTERNAL_SERVER_ERROR,
-      success: false,
-      message: err?.message || "An error occurred while deleting the admin",
-      data: err,
-    });
-  }
-};
+  const result = await adminService.deletedAdmin(id);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Admin deleted successfully",
+    data: result,
+  });
+});
 
-const adminSoftDleted = async (req: Request<{ id: string }>, res: Response) => {
-  const id = req.params.id;
-  try {
-    const result = await adminService.adminSoftDeleted(id);
+const adminSoftDleted = catchAsync(async (req: Request, res: Response) => {
+  const rawId = req.params.id;
+  const id = Array.isArray(rawId) ? rawId[0] : rawId;
+
+  if (!id) {
     sendResponse(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: "Admin soft deleted successfully",
-      data: result,
-    });
-  } catch (err: any) {
-    sendResponse(res, {
-      statusCode: httpStatus.INTERNAL_SERVER_ERROR,
+      statusCode: httpStatus.BAD_REQUEST,
       success: false,
-      message:
-        err?.message || "An error occurred while soft deleting the admin",
-      data: err,
+      message: "Admin id is required",
+      data: null,
     });
+    return;
   }
-};
+
+  const result = await adminService.adminSoftDeleted(id);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Admin soft deleted successfully",
+    data: result,
+  });
+});
 
 export const adminController = {
   getAllAdmins,
