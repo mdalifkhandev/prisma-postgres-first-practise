@@ -43,6 +43,9 @@ model RefreshSession {
   expiresAt          DateTime
   revokedAt          DateTime?
   replacedByTokenHash String?
+  ipAddress          String?
+  userAgent          String?
+  lastUsedAt         DateTime?
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 

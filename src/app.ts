@@ -15,6 +15,7 @@ import { randomUUID } from "crypto";
 import { logger } from "./shared/logger";
 import { env } from "./config/env";
 import { redisClient } from "./shared/redis";
+import { prisma } from "./shared/prisma";
 
 const app: Application = express();
 
@@ -66,6 +67,41 @@ app.use(limiter);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello, World!");
+});
+app.get("/health", (req: Request, res: Response) => {
+  res.status(200).json({
+    success: true,
+    message: "OK",
+    data: { uptime: process.uptime() },
+  });
+});
+
+app.get("/ready", async (req: Request, res: Response) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+
+    if (redisClient) {
+      await redisClient.ping();
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "READY",
+      data: {
+        database: "ok",
+        redis: redisClient ? "ok" : "not-configured",
+      },
+    });
+  } catch {
+    res.status(503).json({
+      success: false,
+      message: "NOT_READY",
+      data: {
+        database: "down",
+        redis: redisClient ? "down" : "not-configured",
+      },
+    });
+  }
 });
 
 app.use("/api/v1", mainRouter);

@@ -57,6 +57,9 @@ const userLogin = async (data: TLoginData) => {
       userId: user.id,
       tokenHash: hashToken(refreshToken),
       expiresAt: toExpiryDate(decodedRefreshToken.exp),
+      ipAddress: data.ipAddress ?? null,
+      userAgent: data.userAgent ?? null,
+      lastUsedAt: new Date(),
     },
   });
 
@@ -127,6 +130,7 @@ const refreshToken = async (data: TRefreshTokenData) => {
       data: {
         revokedAt: new Date(),
         replacedByTokenHash: newRefreshTokenHash,
+        lastUsedAt: new Date(),
       },
     }),
     prisma.refreshSession.create({
@@ -134,6 +138,9 @@ const refreshToken = async (data: TRefreshTokenData) => {
         userId: user.id,
         tokenHash: newRefreshTokenHash,
         expiresAt: toExpiryDate(decodedNewRefreshToken.exp),
+        ipAddress: data.ipAddress ?? null,
+        userAgent: data.userAgent ?? null,
+        lastUsedAt: new Date(),
       },
     }),
   ]);
@@ -142,6 +149,14 @@ const refreshToken = async (data: TRefreshTokenData) => {
     accessToken: newAccessToken,
     refreshToken: newRefreshToken,
   };
+};
+
+const cleanupExpiredRefreshSessions = async () => {
+  await prisma.refreshSession.deleteMany({
+    where: {
+      OR: [{ expiresAt: { lt: new Date() } }, { revokedAt: { not: null } }],
+    },
+  });
 };
 
 const logout = async (data: TLogoutData) => {
@@ -161,4 +176,5 @@ export const authService = {
   userLogin,
   refreshToken,
   logout,
+  cleanupExpiredRefreshSessions,
 };

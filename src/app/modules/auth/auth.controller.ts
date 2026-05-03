@@ -14,7 +14,13 @@ const refreshCookieOptions = {
 
 const userLogin = catchAsync(async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  const result = await authService.userLogin({ email, password });
+  const result = await authService.userLogin({
+    email,
+    password,
+    ipAddress: req.ip,
+    userAgent: req.get("user-agent"),
+  });
+  void authService.cleanupExpiredRefreshSessions();
   const { refreshToken, ...rest } = result;
 
   res.cookie("refreshToken", refreshToken, refreshCookieOptions);
@@ -29,7 +35,12 @@ const userLogin = catchAsync(async (req: Request, res: Response) => {
 
 const refreshToken = catchAsync(async (req: Request, res: Response) => {
   const refreshToken = req.cookies?.refreshToken;
-  const result = await authService.refreshToken({ refreshToken });
+  const result = await authService.refreshToken({
+    refreshToken,
+    ipAddress: req.ip,
+    userAgent: req.get("user-agent"),
+  });
+  void authService.cleanupExpiredRefreshSessions();
   res.cookie("refreshToken", result.refreshToken, refreshCookieOptions);
 
   sendResponse(res, {
