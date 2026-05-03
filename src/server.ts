@@ -1,5 +1,6 @@
 import type { Server } from "http";
 import app from "./app";
+<<<<<<< HEAD
 import { prisma } from "./shared/prisma";
 import { env } from "./config/env";
 import { logger } from "./shared/logger";
@@ -7,6 +8,11 @@ import { redisClient } from "./shared/redis";
 import { authService } from "./app/modules/auth/auth.service";
 
 const port = env.PORT;
+=======
+import { env } from "./app/config";
+
+const port = env.port;
+>>>>>>> 6704ab0264a8d8785b62a17bfe08c2a529e07c6c
 
 async function main() {
   const cleanupTimer = setInterval(() => {

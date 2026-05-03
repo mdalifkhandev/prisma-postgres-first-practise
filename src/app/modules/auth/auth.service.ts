@@ -1,4 +1,13 @@
+<<<<<<< HEAD
 import type { TLoginData, TLogoutData, TRefreshTokenData } from "./auth.interface";
+=======
+import type {
+  TChangePasswordPaylode,
+  TChangePasswordUserData,
+  TLoginData,
+  TRefreshTokenData,
+} from "./auth.interface";
+>>>>>>> 6704ab0264a8d8785b62a17bfe08c2a529e07c6c
 import { UserStatus } from "@prisma/client";
 import httpStatus from "http-status";
 import bcrypt from "bcrypt";
@@ -9,6 +18,7 @@ import {
   createRefreshToken,
   verifyRefreshToken,
 } from "../../../shared/jwtHelpers";
+<<<<<<< HEAD
 import { createHash, randomUUID } from "crypto";
 
 const hashToken = (token: string) =>
@@ -20,6 +30,9 @@ const toExpiryDate = (exp?: number) => {
   }
   return new Date(exp * 1000);
 };
+=======
+import { env } from "../../config";
+>>>>>>> 6704ab0264a8d8785b62a17bfe08c2a529e07c6c
 
 const userLogin = async (data: TLoginData) => {
   const user = await prisma.user.findUnique({
@@ -48,6 +61,7 @@ const userLogin = async (data: TLoginData) => {
     email: user.email,
     role: user.role,
   };
+<<<<<<< HEAD
   const accessToken = createAccessToken(payload);
   const refreshToken = createRefreshToken({ ...payload, jti: randomUUID() });
   const decodedRefreshToken = verifyRefreshToken(refreshToken);
@@ -62,6 +76,10 @@ const userLogin = async (data: TLoginData) => {
       lastUsedAt: new Date(),
     },
   });
+=======
+  const accessToken = createAccessToken(payload, env.jwtAccessExpiresIn);
+  const refreshToken = createRefreshToken(payload, env.jwtRefreshExpiresIn);
+>>>>>>> 6704ab0264a8d8785b62a17bfe08c2a529e07c6c
 
   return {
     accessToken,
@@ -110,6 +128,7 @@ const refreshToken = async (data: TRefreshTokenData) => {
     throw new AppError(httpStatus.FORBIDDEN, "User is deleted");
   }
 
+<<<<<<< HEAD
   const payload = {
     userId: user.id,
     email: user.email,
@@ -144,6 +163,16 @@ const refreshToken = async (data: TRefreshTokenData) => {
       },
     }),
   ]);
+=======
+  const newAccessToken = createAccessToken(
+    {
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+    },
+    env.jwtAccessExpiresIn,
+  );
+>>>>>>> 6704ab0264a8d8785b62a17bfe08c2a529e07c6c
 
   return {
     accessToken: newAccessToken,
@@ -151,14 +180,50 @@ const refreshToken = async (data: TRefreshTokenData) => {
   };
 };
 
+<<<<<<< HEAD
 const cleanupExpiredRefreshSessions = async () => {
   await prisma.refreshSession.deleteMany({
     where: {
       OR: [{ expiresAt: { lt: new Date() } }, { revokedAt: { not: null } }],
+=======
+const passwordChange = async (
+  user: TChangePasswordUserData,
+  paylode: TChangePasswordPaylode,
+) => {
+  const userData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user.email,
+      status: UserStatus.ACTIVE,
+    },
+  });
+
+  if (!userData) {
+    throw new AppError(httpStatus.BAD_REQUEST, "User Not Found");
+  }
+
+  const isPasswordMatch = await bcrypt.compare(
+    paylode.oldPassword,
+    userData.password,
+  );
+
+  if (!isPasswordMatch) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Old Password Incored");
+  }
+  const hashPassword = await bcrypt.hash(paylode.newPassword, 10);
+
+  const result = prisma.user.update({
+    where: {
+      email: user.email,
+    },
+    data: {
+      password: hashPassword,
+      needPasswordChange: false,
+>>>>>>> 6704ab0264a8d8785b62a17bfe08c2a529e07c6c
     },
   });
 };
 
+<<<<<<< HEAD
 const logout = async (data: TLogoutData) => {
   if (!data.refreshToken) {
     return;
@@ -172,8 +237,11 @@ const logout = async (data: TLogoutData) => {
   });
 };
 
+=======
+>>>>>>> 6704ab0264a8d8785b62a17bfe08c2a529e07c6c
 export const authService = {
   userLogin,
+  passwordChange,
   refreshToken,
   logout,
   cleanupExpiredRefreshSessions,
