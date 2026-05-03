@@ -5,7 +5,10 @@ export type TJwtPayload = {
   userId: string;
   email: string;
   role: string;
+  jti?: string;
 };
+
+type TVerifiedJwtPayload = TJwtPayload & { exp?: number; iat?: number };
 
 const getAccessSecret = (): Secret => {
   return env.JWT_ACCESS_SECRET;
@@ -32,9 +35,9 @@ export const createRefreshToken = (
 };
 
 export const verifyAccessToken = (token: string) => {
-  return jwt.verify(token, getAccessSecret()) as TJwtPayload;
+  return jwt.verify(token, getAccessSecret()) as TVerifiedJwtPayload;
 };
 
 export const verifyRefreshToken = (token: string) => {
-  return jwt.verify(token, getRefreshSecret()) as TJwtPayload;
+  return jwt.verify(token, getRefreshSecret()) as TVerifiedJwtPayload;
 };

@@ -21,7 +21,17 @@ const refreshTokenSchema = z.object({
   }),
 });
 
+const logoutSchema = z.object({
+  cookies: z.object({
+    refreshToken: z
+      .string({ error: "Refresh token must be a string" })
+      .trim()
+      .min(1, { error: "Refresh token is required" }),
+  }),
+});
+
 export const authValidation = {
   userLoginSchema,
   refreshTokenSchema,
+  logoutSchema,
 };

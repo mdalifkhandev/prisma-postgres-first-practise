@@ -6,3 +6,7 @@ export type TLoginData = {
 export type TRefreshTokenData = {
   refreshToken?: string;
 };
+
+export type TLogoutData = {
+  refreshToken?: string;
+};

@@ -5,17 +5,19 @@ import httpStatus from "http-status";
 import type { Request, Response } from "express";
 import { env } from "../../../config/env";
 
+const refreshCookieOptions = {
+  httpOnly: true,
+  secure: env.NODE_ENV === "production",
+  sameSite: "lax" as const,
+  path: "/api/v1/auth",
+};
+
 const userLogin = catchAsync(async (req: Request, res: Response) => {
   const { email, password } = req.body;
   const result = await authService.userLogin({ email, password });
   const { refreshToken, ...rest } = result;
 
-  res.cookie("refreshToken", refreshToken, {
-    httpOnly: true,
-    secure: env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/api/v1/auth/refresh-token",
-  });
+  res.cookie("refreshToken", refreshToken, refreshCookieOptions);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -28,16 +30,34 @@ const userLogin = catchAsync(async (req: Request, res: Response) => {
 const refreshToken = catchAsync(async (req: Request, res: Response) => {
   const refreshToken = req.cookies?.refreshToken;
   const result = await authService.refreshToken({ refreshToken });
+  res.cookie("refreshToken", result.refreshToken, refreshCookieOptions);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: "Access token refreshed successfully",
-    data: result,
+    data: {
+      accessToken: result.accessToken,
+    },
+  });
+});
+
+const logout = catchAsync(async (req: Request, res: Response) => {
+  const refreshToken = req.cookies?.refreshToken;
+  await authService.logout({ refreshToken });
+
+  res.clearCookie("refreshToken", refreshCookieOptions);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Logged out successfully",
+    data: null,
   });
 });
 
 export const authController = {
   userLogin,
   refreshToken,
+  logout,
 };
