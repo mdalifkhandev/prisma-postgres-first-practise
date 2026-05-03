@@ -9,9 +9,12 @@ import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import notFound from "./app/middlewares/notFound";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import { RedisStore } from "rate-limit-redis";
 import pinoHttp from "pino-http";
 import { randomUUID } from "crypto";
 import { logger } from "./shared/logger";
+import { env } from "./config/env";
+import { redisClient } from "./shared/redis";
 
 const app: Application = express();
 
@@ -28,13 +31,36 @@ app.use(
   }),
 );
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
+const limiterOptions: {
+  windowMs: number;
+  max: number;
+  message: string;
+  standardHeaders: true;
+  legacyHeaders: false;
+  store?: RedisStore;
+} = {
+  windowMs: env.RATE_LIMIT_WINDOW_MS,
+  max: env.RATE_LIMIT_MAX,
   message: "Too many requests, please try again later.",
   standardHeaders: true,
   legacyHeaders: false,
-});
+};
+
+if (redisClient) {
+  const redis = redisClient;
+  limiterOptions["store"] = new RedisStore({
+    sendCommand: (...args: string[]) =>
+      redis.call(args[0]!, ...args.slice(1)) as Promise<any>,
+  });
+}
+
+const limiter = rateLimit(limiterOptions);
+
+if (!redisClient) {
+  logger.warn(
+    "REDIS_URL is not set. Falling back to in-memory rate limiting store.",
+  );
+}
 
 app.use(limiter);
 

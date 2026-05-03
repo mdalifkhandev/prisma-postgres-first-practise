@@ -3,6 +3,7 @@ import app from "./app";
 import { prisma } from "./shared/prisma";
 import { env } from "./config/env";
 import { logger } from "./shared/logger";
+import { redisClient } from "./shared/redis";
 
 const port = env.PORT;
 
@@ -15,6 +16,9 @@ async function main() {
     logger.info({ signal }, "Shutdown signal received. Shutting down gracefully");
     server.close(async () => {
       await prisma.$disconnect();
+      if (redisClient) {
+        await redisClient.quit();
+      }
       logger.info("Prisma disconnected. Server stopped");
       process.exit(0);
     });
