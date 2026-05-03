@@ -1,4 +1,9 @@
-import type { TLoginData, TRefreshTokenData } from "./auth.interface";
+import type {
+  TChangePasswordPaylode,
+  TChangePasswordUserData,
+  TLoginData,
+  TRefreshTokenData,
+} from "./auth.interface";
 import { UserStatus } from "@prisma/client";
 import httpStatus from "http-status";
 import bcrypt from "bcrypt";
@@ -88,7 +93,44 @@ const refreshToken = async (data: TRefreshTokenData) => {
   };
 };
 
+const passwordChange = async (
+  user: TChangePasswordUserData,
+  paylode: TChangePasswordPaylode,
+) => {
+  const userData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user.email,
+      status: UserStatus.ACTIVE,
+    },
+  });
+
+  if (!userData) {
+    throw new AppError(httpStatus.BAD_REQUEST, "User Not Found");
+  }
+
+  const isPasswordMatch = await bcrypt.compare(
+    paylode.oldPassword,
+    userData.password,
+  );
+
+  if (!isPasswordMatch) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Old Password Incored");
+  }
+  const hashPassword = await bcrypt.hash(paylode.newPassword, 10);
+
+  const result = prisma.user.update({
+    where: {
+      email: user.email,
+    },
+    data: {
+      password: hashPassword,
+      needPasswordChange: false,
+    },
+  });
+};
+
 export const authService = {
   userLogin,
+  passwordChange,
   refreshToken,
 };
