@@ -3,13 +3,15 @@ import express, {
   type Request,
   type Response,
 } from "express";
-import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import { mainRouter } from "./app/router";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import notFound from "./app/middlewares/notFound";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import pinoHttp from "pino-http";
+import { randomUUID } from "crypto";
+import { logger } from "./shared/logger";
 
 const app: Application = express();
 
@@ -18,7 +20,13 @@ app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(morgan("dev"));
+app.use(
+  pinoHttp({
+    logger,
+    genReqId: (req) =>
+      (req.headers["x-request-id"] as string | undefined) ?? randomUUID(),
+  }),
+);
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,

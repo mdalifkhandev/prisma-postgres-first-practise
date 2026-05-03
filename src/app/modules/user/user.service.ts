@@ -1,6 +1,7 @@
 import { UserRole } from "@prisma/client";
 import { prisma } from "../../../shared/prisma";
 import bcrypt from "bcrypt";
+import { env } from "../../../config/env";
 
 type TCreateAdminPayload = {
   email: string;
@@ -10,8 +11,7 @@ type TCreateAdminPayload = {
 };
 
 const createAdmin = async (data: TCreateAdminPayload) => {
-  const saltRounds = Number(process.env.BCRYPT_SALT_ROUNDS) || 10;
-  const hashPassword = await bcrypt.hash(data.password, saltRounds);
+  const hashPassword = await bcrypt.hash(data.password, env.BCRYPT_SALT_ROUNDS);
 
   const userData = {
     email: data.email,

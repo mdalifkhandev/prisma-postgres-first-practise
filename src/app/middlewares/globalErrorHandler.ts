@@ -3,6 +3,8 @@ import httpStatus from "http-status";
 import AppError from "../../shared/AppError";
 import { Prisma } from "@prisma/client";
 import { ZodError } from "zod";
+import { env } from "../../config/env";
+import { logger } from "../../shared/logger";
 
 const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
   let statusCode: number = httpStatus.INTERNAL_SERVER_ERROR;
@@ -39,7 +41,17 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
     message = err.message;
   }
 
-  const isProduction = process.env.NODE_ENV === "production";
+  logger.error(
+    {
+      path: req.originalUrl,
+      method: req.method,
+      statusCode,
+      err,
+    },
+    "Request failed",
+  );
+
+  const isProduction = env.NODE_ENV === "production";
 
   res.status(statusCode).json({
     success: false,

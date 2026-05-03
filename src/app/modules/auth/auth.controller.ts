@@ -3,6 +3,7 @@ import catchAsync from "../../middlewares/catchAsync";
 import { authService } from "./auth.service";
 import httpStatus from "http-status";
 import type { Request, Response } from "express";
+import { env } from "../../../config/env";
 
 const userLogin = catchAsync(async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -11,7 +12,7 @@ const userLogin = catchAsync(async (req: Request, res: Response) => {
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/api/v1/auth/refresh-token",
   });
