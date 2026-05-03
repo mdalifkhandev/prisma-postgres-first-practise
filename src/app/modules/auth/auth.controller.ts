@@ -3,30 +3,45 @@ import catchAsync from "../../middlewares/catchAsync";
 import { authService } from "./auth.service";
 import httpStatus from "http-status";
 import type { Request, Response } from "express";
+import { env } from "../../config";
 
 const userLogin = catchAsync(async (req: Request, res: Response) => {
   const { email, password } = req.body;
   const result = await authService.userLogin({ email, password });
-  const { refreshToken, ...rest } = result;
+  const { refreshToken, accessToken, ...rest } = result;
 
-  res.cookie("refreshToken", refreshToken, {
+  res.cookie(env.accessCookieName, accessToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: env.nodeEnv === "production",
     sameSite: "lax",
-    path: "/api/v1/auth/refresh-token",
+    path: "/",
+  });
+
+  res.cookie(env.refreshCookieName, refreshToken, {
+    httpOnly: true,
+    secure: env.nodeEnv === "production",
+    sameSite: "lax",
+    path: env.refreshCookiePath,
   });
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: "Login successfully",
-    data: rest,
+    data: { accessToken, ...rest },
   });
 });
 
 const refreshToken = catchAsync(async (req: Request, res: Response) => {
-  const refreshToken = req.cookies?.refreshToken;
+  const refreshToken = req.cookies?.[env.refreshCookieName];
   const result = await authService.refreshToken({ refreshToken });
+
+  res.cookie(env.accessCookieName, result.accessToken, {
+    httpOnly: true,
+    secure: env.nodeEnv === "production",
+    sameSite: "lax",
+    path: "/",
+  });
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

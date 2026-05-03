@@ -9,6 +9,7 @@ import {
   createRefreshToken,
   verifyRefreshToken,
 } from "../../../shared/jwtHelpers";
+import { env } from "../../config";
 
 const userLogin = async (data: TLoginData) => {
   const user = await prisma.user.findUnique({
@@ -37,8 +38,8 @@ const userLogin = async (data: TLoginData) => {
     email: user.email,
     role: user.role,
   };
-  const accessToken = createAccessToken(payload);
-  const refreshToken = createRefreshToken(payload);
+  const accessToken = createAccessToken(payload, env.jwtAccessExpiresIn);
+  const refreshToken = createRefreshToken(payload, env.jwtRefreshExpiresIn);
 
   return {
     accessToken,
@@ -73,11 +74,14 @@ const refreshToken = async (data: TRefreshTokenData) => {
     throw new AppError(httpStatus.FORBIDDEN, "User is deleted");
   }
 
-  const newAccessToken = createAccessToken({
-    userId: user.id,
-    email: user.email,
-    role: user.role,
-  });
+  const newAccessToken = createAccessToken(
+    {
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+    },
+    env.jwtAccessExpiresIn,
+  );
 
   return {
     accessToken: newAccessToken,

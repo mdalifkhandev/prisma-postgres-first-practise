@@ -1,4 +1,5 @@
 import jwt, { type Secret, type SignOptions } from "jsonwebtoken";
+import { env } from "../app/config";
 
 export type TJwtPayload = {
   userId: string;
@@ -7,19 +8,11 @@ export type TJwtPayload = {
 };
 
 const getAccessSecret = (): Secret => {
-  const secret = process.env.JWT_ACCESS_SECRET;
-  if (!secret) {
-    throw new Error("JWT_ACCESS_SECRET is not defined");
-  }
-  return secret;
+  return env.jwtAccessSecret;
 };
 
 const getRefreshSecret = (): Secret => {
-  const secret = process.env.JWT_REFRESH_SECRET;
-  if (!secret) {
-    throw new Error("JWT_REFRESH_SECRET is not defined");
-  }
-  return secret;
+  return env.jwtRefreshSecret;
 };
 
 export const createAccessToken = (

@@ -1,8 +1,8 @@
-import "dotenv/config";
 import type { Server } from "http";
 import app from "./app";
+import { env } from "./app/config";
 
-const port = process.env.PORT || 5001;
+const port = env.port;
 
 async function main() {
   const server: Server = app.listen(port, () => {

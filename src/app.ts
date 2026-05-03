@@ -5,9 +5,11 @@ import express, {
 } from "express";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import swaggerUi from "swagger-ui-express";
 import { mainRouter } from "./app/router";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import notFound from "./app/middlewares/notFound";
+import { swaggerSpec } from "./app/config/swagger";
 
 const app: Application = express();
 
@@ -18,6 +20,11 @@ app.use(morgan("dev"));
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello, World!");
+});
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.get("/api-docs-json", (req: Request, res: Response) => {
+  res.json(swaggerSpec);
 });
 
 app.use("/api/v1", mainRouter);
