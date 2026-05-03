@@ -3,6 +3,7 @@ import express, {
   type Request,
   type Response,
 } from "express";
+import cors from "cors";
 import cookieParser from "cookie-parser";
 import { mainRouter } from "./app/router";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
@@ -18,8 +19,19 @@ import { redisClient } from "./shared/redis";
 import { prisma } from "./shared/prisma";
 
 const app: Application = express();
+const allowedOrigins = env.CORS_ORIGINS.split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.set("trust proxy", env.TRUST_PROXY_HOPS);
 
 app.use(helmet());
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  }),
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

@@ -5,11 +5,14 @@ import httpStatus from "http-status";
 import type { Request, Response } from "express";
 import { env } from "../../../config/env";
 
+const isProduction = env.NODE_ENV === "production";
+
 const refreshCookieOptions = {
   httpOnly: true,
-  secure: env.NODE_ENV === "production",
-  sameSite: "lax" as const,
+  secure: isProduction,
+  sameSite: isProduction ? ("strict" as const) : ("lax" as const),
   path: "/api/v1/auth",
+  maxAge: env.REFRESH_TOKEN_COOKIE_MAX_AGE_MS,
 };
 
 const userLogin = catchAsync(async (req: Request, res: Response) => {
@@ -20,7 +23,6 @@ const userLogin = catchAsync(async (req: Request, res: Response) => {
     ipAddress: req.ip,
     userAgent: req.get("user-agent"),
   });
-  void authService.cleanupExpiredRefreshSessions();
   const { refreshToken, ...rest } = result;
 
   res.cookie("refreshToken", refreshToken, refreshCookieOptions);
@@ -40,7 +42,6 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
     ipAddress: req.ip,
     userAgent: req.get("user-agent"),
   });
-  void authService.cleanupExpiredRefreshSessions();
   res.cookie("refreshToken", result.refreshToken, refreshCookieOptions);
 
   sendResponse(res, {

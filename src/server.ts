@@ -4,16 +4,25 @@ import { prisma } from "./shared/prisma";
 import { env } from "./config/env";
 import { logger } from "./shared/logger";
 import { redisClient } from "./shared/redis";
+import { authService } from "./app/modules/auth/auth.service";
 
 const port = env.PORT;
 
 async function main() {
+  const cleanupTimer = setInterval(() => {
+    void authService.cleanupExpiredRefreshSessions().catch((error) => {
+      logger.error({ err: error }, "Failed to cleanup refresh sessions");
+    });
+  }, env.REFRESH_SESSION_CLEANUP_INTERVAL_MS);
+  cleanupTimer.unref();
+
   const server: Server = app.listen(port, () => {
     logger.info({ port }, "Server is running");
   });
 
   const gracefulShutdown = async (signal: string) => {
     logger.info({ signal }, "Shutdown signal received. Shutting down gracefully");
+    clearInterval(cleanupTimer);
     server.close(async () => {
       await prisma.$disconnect();
       if (redisClient) {
