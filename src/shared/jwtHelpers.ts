@@ -1,9 +1,5 @@
 import jwt, { type Secret, type SignOptions } from "jsonwebtoken";
-<<<<<<< HEAD
 import { env } from "../config/env";
-=======
-import { env } from "../app/config";
->>>>>>> 6704ab0264a8d8785b62a17bfe08c2a529e07c6c
 
 export type TJwtPayload = {
   userId: string;
@@ -15,19 +11,11 @@ export type TJwtPayload = {
 type TVerifiedJwtPayload = TJwtPayload & { exp?: number; iat?: number };
 
 const getAccessSecret = (): Secret => {
-<<<<<<< HEAD
   return env.JWT_ACCESS_SECRET;
 };
 
 const getRefreshSecret = (): Secret => {
   return env.JWT_REFRESH_SECRET;
-=======
-  return env.jwtAccessSecret;
-};
-
-const getRefreshSecret = (): Secret => {
-  return env.jwtRefreshSecret;
->>>>>>> 6704ab0264a8d8785b62a17bfe08c2a529e07c6c
 };
 
 export const createAccessToken = (
