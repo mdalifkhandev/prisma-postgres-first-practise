@@ -1,8 +1,6 @@
 node_modules/
 
 # Environment variables
-.env
-.env.*
 !.env.example
 
 # Prisma generated client
@@ -11,6 +9,7 @@ node_modules/
 # Build output
 dist/
 build/
+temp_auto_push.bat
 
 # TypeScript incremental build info
 *.tsbuildinfo
@@ -21,3 +20,6 @@ npm-debug.log*
 pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.gitignore
+config.bat
+branch_structure.json
