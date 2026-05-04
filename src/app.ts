@@ -9,7 +9,6 @@ import swaggerUi from "swagger-ui-express";
 import { mainRouter } from "./app/router";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import notFound from "./app/middlewares/notFound";
-<<<<<<< HEAD
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { RedisStore } from "rate-limit-redis";
@@ -19,9 +18,7 @@ import { logger } from "./shared/logger";
 import { env } from "./config/env";
 import { redisClient } from "./shared/redis";
 import { prisma } from "./shared/prisma";
-=======
 import { swaggerSpec } from "./app/config/swagger";
->>>>>>> 6704ab0264a8d8785b62a17bfe08c2a529e07c6c
 
 const app: Application = express();
 const allowedOrigins = env.CORS_ORIGINS.split(",")
